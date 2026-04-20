@@ -4,29 +4,31 @@
 <meta charset="UTF-8">
 <title>BIOINFORMATICS MISSION</title>
 <style>
-:root{--neon:#00ffcc;--bg:#090c10;--panel:#161b22;--text:#c9d1d9;--warn:#d29922}
+:root{--neon:#00ffcc;--bg:#090c10;--panel:#161b22;--text:#c9d1d9;--warn:#d29922;--danger:#f85149}
 body{font-family:'Consolas',monospace;background:var(--bg);color:var(--text);margin:0;padding:20px;display:flex;justify-content:center}
-#game-ui{width:100%;max-width:900px;background:var(--panel);border:2px solid #30363d;border-radius:12px;padding:25px;box-shadow:0 0 25px rgba(0,255,204,0.1)}
+#game-ui{width:100%;max-width:1000px;background:var(--panel);border:2px solid #30363d;border-radius:12px;padding:25px;box-shadow:0 0 30px rgba(0,255,204,0.1)}
 .screen{display:none}
 .active{display:block}
 .hud{display:grid;grid-template-columns:repeat(5,1fr);background:#010409;padding:15px;border-radius:8px;border:1px solid var(--neon);margin-bottom:20px;text-align:center}
-.hud div{font-size:.7rem;color:#8b949e;text-transform:uppercase}
+.hud div{font-size:.75rem;color:#8b949e;text-transform:uppercase}
 .hud span{display:block;font-weight:bold;color:var(--neon);font-size:1.1rem}
 .briefing-box{background:#010409;padding:20px;border-radius:8px;border:1px solid var(--neon);margin-bottom:20px;line-height:1.4}
-.briefing-box h3{color:var(--neon);margin:0 0 10px 0;text-transform:uppercase}
-.course-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0;background:#010409;padding:15px;border-radius:8px}
-.course-item{background:#21262d;padding:12px;cursor:pointer;border:1px solid transparent;border-radius:4px;font-size:0.85rem}
+.briefing-box h3{background:#8b949e;color:#090c10;display:inline-block;padding:2px 8px;margin:0 0 15px 0;text-transform:uppercase;font-size:0.9rem}
+.briefing-box p{margin:10px 0;font-size:0.95rem}
+.course-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0;max-height:450px;overflow-y:auto;background:#010409;padding:15px;border:1px solid #30363d;border-radius:8px}
+.course-item{background:#21262d;padding:15px;cursor:pointer;border:1px solid transparent;font-size:.9rem;border-radius:4px}
 .course-item.selected{border-color:var(--neon);background:#238636;color:white}
-button{background:transparent;border:1px solid var(--neon);color:var(--neon);padding:15px;cursor:pointer;width:100%;font-weight:bold;margin-top:10px;text-transform:uppercase}
-button:hover{background:var(--neon);color:#000}
+button{background:transparent;border:1px solid var(--neon);color:var(--neon);padding:18px;cursor:pointer;width:100%;font-weight:bold;margin-top:10px;text-transform:uppercase;letter-spacing:1px}
+button:hover{background:var(--neon);color:#000;box-shadow:0 0 15px var(--neon)}
 input{width:100%;padding:15px;background:#010409;border:1px solid #30363d;color:white;margin-bottom:20px;box-sizing:border-box}
+label{display:block;margin-bottom:10px;font-size:0.8rem;color:#8b949e;text-transform:uppercase}
 </style>
 </head>
 <body>
 <div id="game-ui">
     <div id="hud" class="hud" style="display:none">
         <div>YEAR<span id="h-year">10</span></div>
-        <div>AVG<span id="h-avg">0%</span></div>
+        <div id="stat-label">AVG/PERF<span id="h-avg">0%</span></div>
         <div>STRESS<span id="h-stress">0%</span></div>
         <div>SALARY$<span id="h-sal">0</span></div>
         <div>PHASE<span id="h-path">HS</span></div>
@@ -35,9 +37,9 @@ input{width:100%;padding:15px;background:#010409;border:1px solid #30363d;color:
     <div id="scr-start" class="screen active">
         <h1>BIOINFORMATICS MISSION</h1>
         <div class="briefing-box">
-            <h3>Career: Bioinformatics Engineer</h3>
-            <p>Bioinformatics engineers use computer science and biology to analyze DNA and find cures for diseases. Your mission is to navigate the high school requirements, maintain high marks, and graduate from a top university to enter the field.</p>
-            <p><b>Requirements:</b> You must take mandatory courses (Math, Science, English, etc.) to progress. Higher stress levels will drop your marks!</p>
+            <h3>CAREER: BIOINFORMATICS ENGINEER</h3>
+            <p style="background:rgba(139,148,158,0.2); padding:5px;">Bioinformatics engineers use computer science and biology to analyze DNA and find cures for diseases. Your mission is to navigate the high school requirements, maintain high marks, and graduate from a top university to enter the field.</p>
+            <p style="background:rgba(139,148,158,0.2); padding:5px;"><b>Requirements:</b> You must take mandatory courses (Math, Science, English, etc.) to progress. Higher stress levels will drop your marks!</p>
         </div>
         <label>ENTER CANDIDATE NAME:</label>
         <input type="text" id="pName" placeholder="Name...">
@@ -45,50 +47,48 @@ input{width:100%;padding:15px;background:#010409;border:1px solid #30363d;color:
     </div>
 
     <div id="scr-courses" class="screen">
-        <h2 id="c-title">COURSE REGISTRATION</h2>
-        <p style="font-size:0.8rem; color:var(--warn)">* You must select all starred courses to pass the year.</p>
+        <h2 id="c-title">SELECTION</h2>
         <div id="c-list" class="course-grid"></div>
         <p id="c-tracker" style="text-align:center;color:var(--neon);font-weight:bold"></p>
-        <button onclick="submitCourses()">SUBMIT TIMETABLE</button>
+        <button onclick="submitCourses()">SUBMIT SCHEDULE</button>
     </div>
 
     <div id="scr-worklife" class="screen">
-        <h2>STUDENT LIFESTYLE</h2>
+        <h2 id="wl-title">WORKLOAD ALLOCATION</h2>
         <div id="wl-options"></div>
     </div>
 
     <div id="scr-uni-select" class="screen">
         <h2>UNIVERSITY ADMISSIONS</h2>
-        <p>Grade 12 Top 6 Average: <b id="final-avg-val"></b></p>
+        <p>Final Average: <b id="final-avg-val"></b></p>
         <select id="uni-choice" style="width:100%;padding:15px;background:#010409;color:white;border:1px solid #333;margin-bottom:20px;">
-            <option value="carleton">Carleton (Min 85%)</option>
-            <option value="toronto">U of Toronto (Min 90%)</option>
-            <option value="waterloo">Waterloo (Min 93%)</option>
+            <option value="carleton">Carleton (Req: 85%)</option>
+            <option value="toronto">U of Toronto (Req: 90%)</option>
+            <option value="waterloo">Waterloo (Req: 93%)</option>
         </select>
         <button onclick="processUni()">SUBMIT APPLICATION</button>
     </div>
 
     <div id="scr-result" class="screen">
-        <h2 id="res-title">STATUS REPORT</h2>
-        <div id="res-content" style="margin-bottom:15px; background:#010409; padding:15px; border-radius:5px;"></div>
+        <h2 id="res-title">STATUS</h2>
+        <div id="res-content" style="margin-bottom:15px; background:#010409; padding:20px; border-radius:8px;"></div>
         <button id="res-btn">PROCEED</button>
     </div>
 </div>
 
 <script>
 const db={
-    10:["[MPM2D] Math*","[SNC2D] Science*","[ENG2D] English*","[CHC2D] History*","[CHV/GLC] Civics & Careers*","[ICS2O] Computer Science","[PPL2O] Healthy Living","[ADA2O] Drama","[AVI2O] Visual Arts","[BBI2O] Intro Business"],
-    11:["[MCR3U] Functions*","[SBI3U] Biology*","[SCH3U] Chemistry*","[ENG3U] English*","[SPH3U] Physics","[ICS3U] Computer Science","[BAF3M] Accounting","[HSP3U] Psychology"],
-    12:["[MHF4U] AdvFunc*","[MCV4U] Calculus*","[ENG4U] English*","[SCH4U] Chemistry*","[SPH4U] Physics*","[SBI4U] Biology*","[ICS4U] CompSci","[PSK4U] Kinesiology"],
-    uni:["C++ Programming","Calculus I","Foundations of Biology","Electromagnetism","Medical Instrumentation","Database Systems"],
-    spec:["ML for Bioinformatics","Genomic Data Analysis","Master's Thesis"],
-    work:["DNA Sequence Mapping","Pathogen Viral Modeling","Neural Interface Design"]
+    10:["MPM2D Math","SNC2D Science","ENG2D English","CHC2D History","CHV/GLC Civics & Careers","ICS2O CompSci","PPL2O Gym","ADA2O Drama","AVI2O Art","BBI2O Business","ASM2O Media Arts","FSF2D French","HRE2O Religion","TCJ2O Tech","TGJ2O CommTech","LWBDI Spanish","LVLBI Latin","FIF2D Immersion","CGC1D Geography","NAC1O Expressive Arts"],
+    11:["MCR3U Functions","SBI3U Biology","SCH3U Chemistry","SPH3U Physics","ENG3U English","ICS3U CompSci","BAF3M Accounting","HSP3U Psychology","PAF3O Fitness","ADA3M Drama","AVI3M Art","AWQ3M Photography","EMS3O Media","CLU3M Law","CHA3W World History","CHW3M Ancient History","HRT3M Religion","TGE3M Robotics","TEJ3M Engineering","BMI3C Marketing"],
+    12:["MHF4U AdvFunc","MCV4U Calculus","ENG4U English","SCH4U Chemistry","SPH4U Physics","SBI4U Biology","ICS4U CompSci","PSK4U Kinesiology","HSB4U Change","BBB4M IntlBiz","CIA4U Economics","CLN4U IntlLaw","CPW4U Politics","EWC4U Writing","MDM4U Data Mgmt","BAT4M Accounting","HHG4M Human Dev","HZT4U Philosophy","TGJ4M CommTech","PPL4O Gym"],
+    uni:["C++ Programming","Calculus I","Biology Foundations","Electromagnetism","Medical Instrumentation","Database Systems","Genetics","Biochemistry","Statistics","Neural Networks","Organic Chemistry","Physics II"],
+    work:["DNA Sequence Mapping","Viral Modeling","Genomic Data Pipeline","CRISPR Simulation","Neural Calibration","Database Optimization","Protein Folding Analysis","Gene Expression Profiling","Microarray Tech","Phylogenetic Tree Building","Algorithm Design","Clinical Data Mining","Bio-Scripting","Machine Learning Prep","Cloud Bio-Storage","Metadata Analysis","RNA Sequencing","Structural Bio-Modeling","Pathogen Detection","Genetic Marker ID"]
 };
 
-let state={name:"",phase:"HS",year:10,avg:82,stress:0,salary:0,isSpec:false,selected:[]};
+let state={name:"",phase:"HS",year:10,avg:82,stress:0,salary:0,selected:[]};
 
 function startGame(){
-    state.name=document.getElementById('pName').value||"User";
+    state.name=document.getElementById('pName').value||"Candidate";
     document.getElementById('hud').style.display="grid";
     loadPhase();
 }
@@ -97,9 +97,8 @@ function loadPhase(){
     state.selected=[];
     let l=document.getElementById('c-list');
     l.innerHTML="";
-    let s=(state.phase==="HS")?db[state.year]:(state.phase==="UNI"?db.uni:(state.phase==="SPEC"?db.spec:db.work));
-    document.getElementById('c-title').innerText=`${state.phase} - ${state.phase==="HS"?"Grade "+state.year:state.phase}`;
-    
+    let s=(state.phase==="HS")?db[state.year]:(state.phase==="UNI"?db.uni:(state.phase==="SPEC"?db.uni:db.work));
+    document.getElementById('c-title').innerText=`${state.phase} SELECTION`;
     s.forEach(c=>{
         let d=document.createElement('div');
         d.className="course-item";
@@ -109,6 +108,12 @@ function loadPhase(){
                 d.classList.remove('selected');
                 state.selected=state.selected.filter(x=>x!==c);
             }else{
+                // ADD LIMITS HERE
+                let limit = 8;
+                if(state.phase !== "HS") limit = 5;
+                
+                if(state.selected.length >= limit) return alert(`Limit reached: Max ${limit} selections.`);
+                
                 d.classList.add('selected');
                 state.selected.push(c);
             }
@@ -121,21 +126,30 @@ function loadPhase(){
 
 function submitCourses(){
     if(state.phase==="HS"){
-        const reqs = db[state.year].filter(c => c.includes('*'));
-        const missing = reqs.filter(r => !state.selected.includes(r));
-        if(missing.length > 0) return alert("REQUIRED COURSES MISSING: " + missing.join(", "));
-        let totalReq = (state.year === 12 ? 6 : 8);
-        if(state.selected.length < totalReq) return alert(`INCOMPLETE TIMETABLE. You need ${totalReq} courses.`);
+        if(state.year === 12) {
+            if(state.selected.length < 7) return alert("Grade 12 requires 7 or 8 courses.");
+        } else {
+            if(state.selected.length !== 8) return alert("Grade 10 and 11 require exactly 8 courses.");
+        }
+    } else {
+        if(state.selected.length !== 5) return alert("Select exactly 5 credits/tasks for this cycle.");
     }
     
     let o=document.getElementById('wl-options');
     o.innerHTML="";
-    const st=[{n:"Scholar",m:6,s:15},{n:"Athlete",m:2,s:-10},{n:"Socialite",m:-2,s:-20}];
-    st.forEach(s=>{
+    let opt = (state.phase==="WORK") ? 
+        [{n:"Crunch Mode",m:10,s:25,d:"Max output. High raise potential."},
+         {n:"Steady Pace",m:4,s:5,d:"Normal workload."},
+         {n:"Quiet Quitting",m:-6,s:-15,d:"Minimum effort."}] :
+        [{n:"Scholar",m:6,s:15,d:"Prioritize grades."},
+         {n:"Athlete",m:2,s:-10,d:"Physical balance."},
+         {n:"Social",m:-2,s:-20,d:"Social recovery."}];
+
+    opt.forEach(s=>{
         let b=document.createElement('div');
         b.className="course-item";
-        b.style="margin-bottom:10px; border:1px solid #444; text-align:center;";
-        b.innerHTML=`<b>${s.n}</b>: Marks +${s.m}%, Stress ${s.s}%`;
+        b.style="margin-bottom:12px; border:1px solid #444; text-align:center;";
+        b.innerHTML=`<b>${s.n}</b><br><small>${s.d}</small><br><span style="color:var(--neon)">${(state.phase==="WORK")?"Output":"Marks"} +${s.m}%, Stress ${s.s}%</span>`;
         b.onclick=()=>applyLogic(s.m,s.s);
         o.appendChild(b);
     });
@@ -144,22 +158,26 @@ function submitCourses(){
 
 function applyLogic(m,s){
     state.stress = Math.min(100, Math.max(0, state.stress + s));
-    state.avg = Math.min(100, Math.max(0, state.avg + m - (state.stress > 50 ? 5 : 0)));
+    let pen = (state.stress > 50) ? Math.floor((state.stress - 50) / 10) * 3 : 0;
+    state.avg = Math.min(100, Math.max(0, state.avg + m - pen));
+    
+    if(state.phase==="WORK"){
+        if(state.avg > 85) { state.salary += 4000; }
+        if(state.avg < 40) return triggerFail("TERMINATED. LOW PERFORMANCE.");
+    }
+
     updateHUD();
-    
-    if(state.stress>=100) return triggerFail("BURNOUT. THE PRESSURE WAS TOO MUCH.");
-    if(state.avg<60) return triggerFail("ACADEMIC FAILURE. GRADES DROPPED TOO LOW.");
-    
+    if(state.stress>=100) return triggerFail("BURNOUT. CRITICAL SYSTEM FAILURE.");
+    if(state.phase!=="WORK" && state.avg<60) return triggerFail("ACADEMIC FAILURE.");
+
     if(state.phase==="HS"){
         if(state.year<12){ state.year++; loadPhase(); }
         else { document.getElementById('final-avg-val').innerText=state.avg.toFixed(1)+"%"; show('scr-uni-select'); }
-    } else if(state.phase==="UNI"){
-        if(state.year<4){ state.year++; loadPhase(); }
-        else { triggerSpecFork(); }
-    } else if(state.phase==="SPEC"){
-        startWork(90000,true);
+    } else if(state.phase==="UNI" || state.phase==="SPEC"){
+        if(state.year >= 4 || state.phase === "SPEC") { triggerSpecFork(); }
+        else { state.year++; loadPhase(); }
     } else {
-        if(state.year<5){ state.year++; loadPhase(); }
+        if(state.year < 5) { state.year++; loadPhase(); }
         else { triggerWin(); }
     }
 }
@@ -167,24 +185,30 @@ function applyLogic(m,s){
 function processUni(){
     let c=document.getElementById('uni-choice').value;
     let min = c==="waterloo"?93:(c==="toronto"?90:85);
-    if(state.avg >= min){
-        state.phase="UNI"; state.year=1; state.avg=75; state.stress=0; updateHUD(); loadPhase();
-    } else { triggerFail("REJECTED. YOU DID NOT MEET THE MINIMUM AVERAGE."); }
+    const hasMath = state.selected.includes("MHF4U AdvFunc") && state.selected.includes("MCV4U Calculus");
+    const hasSci = state.selected.includes("SCH4U Chemistry") && state.selected.includes("SPH4U Physics") && state.selected.includes("SBI4U Biology");
+    if(state.avg >= min && hasMath && hasSci){
+        state.phase="UNI"; state.year=1; state.avg=70; state.stress=0; updateHUD(); loadPhase();
+    } else { triggerFail("REJECTED. PREREQUISITES NOT MET."); }
 }
 
 function triggerSpecFork(){
-    document.getElementById('res-title').innerText="GRADUATION";
+    document.getElementById('res-title').innerText="PHASE COMPLETE";
     document.getElementById('res-content').innerHTML=`
-        <p>Congratulations! You have your Bachelor's Degree. What is your next move?</p>
-        <button onclick="startWork(65000,false)">Start Career ($65,000)</button>
-        <button onclick="startSpecialization()" style="margin-top:10px">Specialize ($0 Study - $90k Start)</button>`;
+        <p>Transitioning to professional workspace. Previous academic stats reset.</p>
+        <button onclick="startJob(65000)">Junior Engineer ($65k)</button>
+        <button onclick="startJob(90000)" style="margin-top:10px">Specialist ($90k)</button>`;
     show('scr-result');
 }
 
-function startSpecialization(){ state.phase="SPEC"; state.year="MASTERS"; state.salary=0; state.stress=10; updateHUD(); loadPhase(); }
-function startWork(b,i){ state.phase="WORK"; state.year=1; state.salary=b; state.isSpec=i; state.stress=0; updateHUD(); loadPhase(); }
-function triggerFail(m){ document.getElementById('res-title').innerText="FAILED"; document.getElementById('res-content').innerText=m; document.getElementById('res-btn').onclick=()=>location.reload(); show('scr-result'); }
-function triggerWin(){ document.getElementById('res-title').innerText="SUCCESS"; document.getElementById('res-content').innerHTML=`Final Salary: $${state.salary.toLocaleString()}<br>Mission Complete, Engineer.`; show('scr-result'); }
+function startJob(s){ 
+    state.phase="WORK"; state.year=1; state.salary=s; state.avg=60; state.stress=0;
+    updateHUD(); loadPhase(); 
+}
+
+function triggerFail(m){ document.getElementById('res-title').innerText="MISSION FAILED"; document.getElementById('res-content').innerText=m; document.getElementById('res-btn').onclick=()=>location.reload(); show('scr-result'); }
+function triggerWin(){ document.getElementById('res-title').innerText="MISSION COMPLETE"; document.getElementById('res-content').innerHTML=`Final Salary: $${state.salary.toLocaleString()}<br>Bioinformatics Master Status Achieved.`; show('scr-result'); }
+
 function updateHUD(){ 
     document.getElementById('h-year').innerText=state.year;
     document.getElementById('h-avg').innerText=state.avg.toFixed(1)+"%";
