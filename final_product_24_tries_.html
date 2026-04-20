@@ -1,10 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>BIOINFORMATICS MISSION</title>
+<style>
+:root{--neon:#00ffcc;--bg:#090c10;--panel:#161b22;--text:#c9d1d9;--warn:#d29922;--danger:#f85149}
+body{font-family:'Consolas',monospace;background:var(--bg);color:var(--text);margin:0;padding:20px;display:flex;justify-content:center}
+#game-ui{width:100%;max-width:950px;background:var(--panel);border:2px solid #30363d;border-radius:12px;padding:25px;box-shadow:0 0 30px rgba(0,255,204,0.1)}
+.screen{display:none}
+.active{display:block;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.hud{display:grid;grid-template-columns:repeat(6,1fr);background:#010409;padding:15px;border-radius:8px;border:1px solid var(--neon);margin-bottom:20px;text-align:center}
+.hud div{font-size:.75rem;color:#8b949e;text-transform:uppercase}
+.hud span{display:block;font-weight:bold;color:var(--neon);font-size:1.1rem;margin-top:4px}
+.briefing-box{background:#010409;padding:20px;border-radius:8px;border:1px solid var(--neon);margin-bottom:20px;line-height:1.5}
+.briefing-box h3{color:var(--neon);margin:0 0 10px 0;border-bottom:1px solid #333;padding-bottom:5px;text-transform:uppercase;font-size:1rem}
+.course-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0;max-height:400px;overflow-y:auto;background:#010409;padding:15px;border:1px solid #30363d;border-radius:8px}
+.course-item{background:#21262d;padding:15px;cursor:pointer;border:1px solid transparent;font-size:.9rem;border-radius:4px;transition:.2s}
+.course-item.selected{border-color:var(--neon);background:#238636;color:white}
+button{background:transparent;border:1px solid var(--neon);color:var(--neon);padding:18px;cursor:pointer;width:100%;font-weight:bold;font-family:inherit;margin-top:10px;text-transform:uppercase;letter-spacing:1px;transition:.3s}
+button:hover{background:var(--neon);color:#000;box-shadow:0 0 15px var(--neon)}
+.choice-btn{background:#1b1f23;border:1px solid #444;color:#c9d1d9;text-align:left;padding:20px;margin-bottom:12px;cursor:pointer;border-radius:6px;transition:.2s}
+.choice-btn:hover{border-color:var(--neon);background:#21262d}
+input{width:100%;padding:15px;background:#010409;border:1px solid #30363d;color:white;margin-bottom:20px;font-family:inherit;box-sizing:border-box}
+</style>
+</head>
+<body>
+<div id="game-ui">
+    <div id="hud" class="hud" style="display:none">
+        <div>User<span><span id="h-name">---</span></span></div>
+        <div>Year<span><span id="h-year">10</span></span></div>
+        <div>Avg/Perf<span><span id="h-avg">0%</span></span></div>
+        <div>Stress<span><span id="h-stress">0%</span></span></div>
+        <div>Salary<span>$<span id="h-sal">0</span></span></div>
+        <div>Phase<span><span id="h-path">HS</span></span></div>
+    </div>
+    
+    <div id="scr-start" class="screen active">
+        <h1>BIOINFORMATICS MISSION</h1>
+        <label>SYSTEM ACCESS NAME:</label>
+        <input type="text" id="pName" placeholder="Enter full name...">
+        <div class="briefing-box">
+            <h3>Role: Bioinformatics Engineer</h3>
+            <p>Analyze DNA and sequence genomes to find cures. Impact lives with AI and CRISPR tools.</p>
+        </div>
+        <button onclick="startGame()">INITIALIZE MISSION</button>
+    </div>
+
+    <div id="scr-courses" class="screen">
+        <h2 id="c-title">REGISTRATION</h2>
+        <div id="c-list" class="course-grid"></div>
+        <p id="c-tracker" style="text-align:center;color:var(--warn);font-weight:bold"></p>
+        <button onclick="submitCourses()">SUBMIT SCHEDULE</button>
+    </div>
+
+    <div id="scr-worklife" class="screen">
+        <h2>WORKLOAD ALLOCATION</h2>
+        <div id="wl-options"></div>
+    </div>
+
+    <div id="scr-uni-select" class="screen">
+        <h2>UNIVERSITY APPLICATIONS</h2>
+        <p>Final Average: <b id="final-avg-val"></b></p>
+        <select id="uni-choice" style="width:100%;padding:15px;background:#010409;color:white;border:1px solid #333;margin-bottom:20px;">
+            <option value="carleton">Carleton (85%+)</option>
+            <option value="toronto">U of Toronto (90%+)</option>
+            <option value="waterloo">Waterloo (93%+)</option>
+        </select>
+        <button onclick="processUni()">SUBMIT APPLICATION</button>
+    </div>
+
+    <div id="scr-result" class="screen">
+        <h2 id="res-title">STATUS</h2>
+        <div id="res-content" style="background:#010409;padding:20px;border-radius:8px;margin-bottom:15px;border-left:4px solid var(--neon)"></div>
+        <button id="res-btn">PROCEED</button>
+    </div>
+</div>
+
 <script>
 const db={
     10:["[MPM2D] Math","[SNC2D] Science","[ENG2D] English","[ICS2O] CS","[CHC2D] History","[GLC2O] Careers","[CHV2O] Civics","[PPL2O] Gym","[CGC1D] Geography"],
     11:["[MCR3U] Functions","[SBI3U] Biology","[SCH3U] Chemistry","[SPH3U] Physics","[ICS3U] CS","[ENG3U] English","[HSP3U] Psych","[BAF3M] Acct", "[CGC1D] Geography"],
     12:["[MHF4U] Adv Func","[MCV4U] Calc","[ENG4U] English","[SCH4U] Chem","[SPH4U] Phys","[ICS4U] CS","[SBI4U] Bio","[PSK4U] Kinesiology"],
     uni:["[SYSC 2006] C++ Programming","[MATH 1004] Calculus I","[BIOL 1103] Biology I","[PHYS 1004] Electromagnetism","[CHEM 1101] Chemistry II","[BIOM 2007] Medical Instrumentation","[COMP 3005] Database Systems"],
-    spec:["[SYSC 5104] Discrete-Event Modeling","[BIOM 5405] Pattern Classification","[COMP 5900] ML for Bioinformatics","[BIOL 5501] Genomic Data Studies","[BIOM 5906] Master's Thesis"],
+    spec:["[SYSC 5104] Discrete Modeling","[BIOM 5405] Pattern Classification","[COMP 5900] ML for Bioinformatics","[BIOL 5501] Genomic Data","[BIOM 5906] Master's Thesis"],
     work:["Project Alpha: DNA Mapping","Project Beta: Pathogen Modeling","Project Gamma: Neural Interface","Project Delta: Clinical Trial"]
 };
 
@@ -79,12 +158,12 @@ function applyLogic(m,s){
         if(state.avg>=85) state.raiseCounter++;
         else state.raiseCounter=0;
         
-        if(state.raiseCounter>=2){ // Promotion every 2 years of high performance
+        if(state.raiseCounter>=2){ 
             let cap=state.isSpec?190000:135000;
             if(state.salary<cap){
-                state.salary+=15000;
+                state.salary+=12500;
                 if(state.salary>cap)state.salary=cap;
-                alert(`PROMOTION! New Salary: $${state.salary.toLocaleString()}`);
+                alert(`PROMOTION: New Salary: $${state.salary.toLocaleString()}`);
             }
             state.raiseCounter=0;
         }
@@ -111,7 +190,6 @@ function applyLogic(m,s){
             triggerSpecFork();
         }
     } else if(state.phase==="SPEC"){
-        // Finish Specialization -> Start as a Junior Specialist at $90k
         startWork(90000,true);
     } else {
         if(state.year<10){
@@ -148,9 +226,9 @@ function processUni(){
 function triggerSpecFork(){
     document.getElementById('res-title').innerText="GRADUATION";
     document.getElementById('res-content').innerHTML=`
-        <p>You have graduated! Your choice defines your start:</p>
-        <button onclick=\"startWork(65000,false)\">Junior Bio-Tech ($65k Start)</button>
-        <button onclick=\"startSpecialization()\" style=\"margin-top:10px\">Master's Specialty ($0 - Higher Cap)</button>
+        <p>Choose your entry path:</p>
+        <button onclick=\"startWork(65000,false)\">General Bio-Tech ($65k Start)</button>
+        <button onclick=\"startSpecialization()\" style=\"margin-top:10px\">Master's Specialist ($0 Study - Entry $90k)</button>
     `;
     show('scr-result');
 }
@@ -185,7 +263,7 @@ function triggerFail(m){
 
 function triggerWin(){
     document.getElementById('res-title').innerText="SUCCESS";
-    document.getElementById('res-content').innerHTML=`Final Career Salary: $${state.salary.toLocaleString()}<br>Top Tier Professional: ${state.name}`;
+    document.getElementById('res-content').innerHTML=`Final Salary: $${state.salary.toLocaleString()}<br>Great work, ${state.name}!`;
     show('scr-result');
 }
 
@@ -202,3 +280,5 @@ function show(i){
     document.getElementById(i).classList.add('active');
 }
 </script>
+</body>
+</html>
