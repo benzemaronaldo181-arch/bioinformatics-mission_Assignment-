@@ -108,12 +108,8 @@ function loadPhase(){
                 d.classList.remove('selected');
                 state.selected=state.selected.filter(x=>x!==c);
             }else{
-                // ADD LIMITS HERE
-                let limit = 8;
-                if(state.phase !== "HS") limit = 5;
-                
+                let limit = (state.phase === "HS") ? 8 : 5;
                 if(state.selected.length >= limit) return alert(`Limit reached: Max ${limit} selections.`);
-                
                 d.classList.add('selected');
                 state.selected.push(c);
             }
@@ -173,10 +169,21 @@ function applyLogic(m,s){
     if(state.phase==="HS"){
         if(state.year<12){ state.year++; loadPhase(); }
         else { document.getElementById('final-avg-val').innerText=state.avg.toFixed(1)+"%"; show('scr-uni-select'); }
-    } else if(state.phase==="UNI" || state.phase==="SPEC"){
-        if(state.year >= 4 || state.phase === "SPEC") { triggerSpecFork(); }
+    } 
+    else if(state.phase==="UNI" || state.phase==="SPEC"){
+        if(state.year >= 4 || state.phase === "SPEC") {
+            // UNIVERSITY GRADUATION PREREQUISITE CHECK
+            const hasCore = state.selected.includes("Genetics") && state.selected.includes("Biochemistry");
+            
+            if(state.phase === "UNI" && !hasCore) {
+                return triggerFail("GRADUATION DENIED: You missed core credits (Genetics & Biochemistry) required for Bioinformatics.");
+            }
+            
+            triggerSpecFork(); 
+        }
         else { state.year++; loadPhase(); }
-    } else {
+    } 
+    else {
         if(state.year < 5) { state.year++; loadPhase(); }
         else { triggerWin(); }
     }
