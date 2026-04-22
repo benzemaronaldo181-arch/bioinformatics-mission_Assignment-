@@ -81,8 +81,18 @@ const db={
     10:["MPM2D Math","SNC2D Science","ENG2D English","CHC2D History","CHV/GLC Civics & Careers","ICS2O CompSci","PPL2O Gym","ADA2O Drama","AVI2O Art","BBI2O Business","ASM2O Media Arts","FSF2D French","HRE2O Religion","TCJ2O Tech","TGJ2O CommTech","LWBDI Spanish","LVLBI Latin","FIF2D Immersion","CGC1D Geography","NAC1O Expressive Arts"],
     11:["MCR3U Functions","SBI3U Biology","SCH3U Chemistry","SPH3U Physics","ENG3U English","ICS3U CompSci","BAF3M Accounting","HSP3U Psychology","PAF3O Fitness","ADA3M Drama","AVI3M Art","AWQ3M Photography","EMS3O Media","CLU3M Law","CHA3W World History","CHW3M Ancient History","HRT3M Religion","TGE3M Robotics","TEJ3M Engineering","BMI3C Marketing"],
     12:["MHF4U AdvFunc","MCV4U Calculus","ENG4U English","SCH4U Chemistry","SPH4U Physics","SBI4U Biology","ICS4U CompSci","PSK4U Kinesiology","HSB4U Change","BBB4M IntlBiz","CIA4U Economics","CLN4U IntlLaw","CPW4U Politics","EWC4U Writing","MDM4U Data Mgmt","BAT4M Accounting","HHG4M Human Dev","HZT4U Philosophy","TGJ4M CommTech","PPL4O Gym"],
-    uni:["C++ Programming","Calculus I","Biology Foundations","Electromagnetism","Medical Instrumentation","Database Systems","Genetics","Biochemistry","Statistics","Neural Networks","Organic Chemistry","Physics II"],
+    uni:["C++ Programming","Calculus I","Biology Foundations","Electromagnetism","Medical Instrumentation","Database Systems","Genetics","Biochemistry","Statistics","Neural Networks","Organic Chemistry","Physics I"],
     work:["DNA Sequence Mapping","Viral Modeling","Genomic Data Pipeline","CRISPR Simulation","Neural Calibration","Database Optimization","Protein Folding Analysis","Gene Expression Profiling","Microarray Tech","Phylogenetic Tree Building","Algorithm Design","Clinical Data Mining","Bio-Scripting","Machine Learning Prep","Cloud Bio-Storage","Metadata Analysis","RNA Sequencing","Structural Bio-Modeling","Pathogen Detection","Genetic Marker ID"]
+};
+
+// HIDDEN WEIGHTING SYSTEM
+const courseWeights = {
+    "PPL2O Gym": 1.1, "ADA2O Drama": 1.1, "AVI2O Art": 1.1, "NAC1O Expressive Arts": 1.1,
+    "PAF3O Fitness": 1.1, "ADA3M Drama": 1.1, "AVI3M Art": 1.1, "AWQ3M Photography": 1.1,
+    "PPL4O Gym": 1.1, "EMS3O Media": 1.1, "BMI3C Marketing": 1.08,
+    "CHC2D History": 1.05, "ENG2D English": 1.05, "BBI2O Business": 1.05, "FSF2D French": 1.05,
+    "ENG3U English": 1.05, "HSP3U Psychology": 1.05, "BAF3M Accounting": 1.05, "CLU3M Law": 1.05,
+    "ENG4U English": 1.05, "BBB4M IntlBiz": 1.05, "CIA4U Economics": 1.05, "EWC4U Writing": 1.05
 };
 
 let state={name:"",phase:"HS",year:10,avg:82,stress:0,salary:0,selected:[]};
@@ -154,8 +164,16 @@ function submitCourses(){
 
 function applyLogic(m,s){
     state.stress = Math.min(100, Math.max(0, state.stress + s));
+    
+    let totalWeight = 0;
+    state.selected.forEach(course => {
+        totalWeight += (courseWeights[course] || 1.0);
+    });
+    let avgWeight = totalWeight / state.selected.length;
+    let weightBonus = (avgWeight - 1.0) * 10;
+
     let pen = (state.stress > 50) ? Math.floor((state.stress - 50) / 10) * 3 : 0;
-    state.avg = Math.min(100, Math.max(0, state.avg + m - pen));
+    state.avg = Math.min(100, Math.max(0, state.avg + m + weightBonus - pen));
     
     if(state.phase==="WORK"){
         if(state.avg > 85) { state.salary += 4000; }
@@ -172,13 +190,13 @@ function applyLogic(m,s){
     } 
     else if(state.phase==="UNI" || state.phase==="SPEC"){
         if(state.year >= 4 || state.phase === "SPEC") {
-            // UNIVERSITY GRADUATION PREREQUISITE CHECK
-            const hasCore = state.selected.includes("Genetics") && state.selected.includes("Biochemistry");
+            // UPDATED BIOINFORMATICS GRADUATION CORE
+            const hasBio = state.selected.includes("Genetics") && state.selected.includes("Biochemistry");
+            const hasTech = state.selected.includes("C++ Programming") && state.selected.includes("Calculus I");
             
-            if(state.phase === "UNI" && !hasCore) {
-                return triggerFail("GRADUATION DENIED: You missed core credits (Genetics & Biochemistry) required for Bioinformatics.");
+            if(state.phase === "UNI" && (!hasBio || !hasTech)) {
+                return triggerFail("GRADUATION DENIED: You missed core credits (Genetics, Biochemistry, C++, & Calculus) required for Bioinformatics.");
             }
-            
             triggerSpecFork(); 
         }
         else { state.year++; loadPhase(); }
@@ -203,8 +221,8 @@ function triggerSpecFork(){
     document.getElementById('res-title').innerText="PHASE COMPLETE";
     document.getElementById('res-content').innerHTML=`
         <p>Transitioning to professional workspace. Previous academic stats reset.</p>
-        <button onclick="startJob(65000)">Junior Engineer ($65k)</button>
-        <button onclick="startJob(90000)" style="margin-top:10px">Specialist ($90k)</button>`;
+        <button onclick="startJob(75000)">JUNIOR ENGINEER ($75K - $105K)</button>
+        <button onclick="startJob(95000)" style="margin-top:10px">SPECIALIST ($90K - $145K)</button>`;
     show('scr-result');
 }
 
